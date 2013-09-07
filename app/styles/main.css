@@ -10,8 +10,6 @@ body {
     font-size: 18px;
     font-weight: 200;
     line-height: 30px;
-    background-color: #eee;
-    border-radius: 6px;
     padding: 60px;
 }
 
@@ -19,4 +17,47 @@ body {
     font-size: 60px;
     line-height: 1;
     letter-spacing: -1px;
+}
+
+
+
+.goblins-face {
+	display: block;
+	margin: 0 auto;
+}
+
+.main-pic-container {
+	position: absolute;
+	left: 40px;
+	top: 400px;
+}
+.main-pic-container p {
+	padding-top: 65px;
+}
+
+.main-pic {
+	position: absolute;
+	background: transparent url(../images/pic.png) no-repeat;
+	width: 75px;
+	height: 60px;
+	border: 1px solid black;
+	box-shadow: 4px 4px 8px -4px rgba(0, 0, 0, .75);
+}                                                 
+
+.main-pic.one {
+	-webkit-transform: rotate(-2deg) translateX(0px);
+}
+.main-pic.two {
+	-webkit-transform: rotate(0deg) translateX(10px);
+}
+.main-pic.three {
+	-webkit-transform: rotate(2deg) translate(20px, 5px);
+}
+
+
+
+.feed-instructions {
+	position: absolute;
+	right: 40px;
+	top: 400px;
 }
