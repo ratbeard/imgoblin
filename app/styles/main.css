@@ -61,3 +61,11 @@ body {
 	right: 40px;
 	top: 400px;
 }
+
+
+.drop-container {
+	height: 100%;
+}
+.drop-container.dragging {
+	background: red;
+}
