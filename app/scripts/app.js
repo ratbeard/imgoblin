@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('tmpApp', [])
+angular.module('imgoblin', [])
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
