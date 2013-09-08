@@ -51,11 +51,13 @@ class FileDragUI
 		formData = new window.FormData()
 		for file in files
 			console.log file
-			formData.append('file', file)
+			formData.append('image', file)
 			@previewFile(file)
+		formData.append('smap', 'hat')
 
+		url = @uploadUrl + "/" + generateCid()
 		xhr = new XMLHttpRequest
-		xhr.open("POST", @uploadUrl)
+		xhr.open("PUT", url)
 		xhr.onload = => @showProgress(1)
 		xhr.upload.onprogress = @onProgress
 		xhr.send(formData)
@@ -68,6 +70,11 @@ class FileDragUI
 		x = fractionComplete * 100 | 0
 		console.log x
 		
+
+generateCid = ->
+	"cid" + (Math.random() * 12354389 | 0)
+
 container = document.querySelector('.drop-container')
-new FileDragUI(container, 'upload/13afz')
+url = "http://localhost:4000/upload"
+new FileDragUI(container, url)
 		
