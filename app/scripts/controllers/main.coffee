@@ -1,4 +1,8 @@
-serverUrl = "http://localhost:4000"
+if /imgoblin/.test(window.location)
+	serverUrl = "http://imgoblin-api.mikefrawley.com"
+else
+	serverUrl = "http://localhost:9119"
+	
 
 
 angular.module('imgoblin').controller 'MainCtrl', ($scope, $http) ->

@@ -43,6 +43,8 @@ class UploadedImagePersistance
 
 	@loadImages: (callback) ->
 		fs.readFile './db.json', 'utf8', (err, text) ->
+			if err?.code == 'ENOENT'
+				return callback(null, [])
 			throw err if err
 			data = JSON.parse(text)
 			callback(err, data)
@@ -116,5 +118,5 @@ app.get '/images.json', (request, response) ->
 #
 # Run
 #
-app.listen(4000)
+app.listen(9119)
 module.exports = app
