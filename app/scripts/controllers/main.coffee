@@ -1,16 +1,39 @@
+serverUrl = "http://localhost:4000"
 
-angular.module('imgoblin').controller('MainCtrl', ($scope) ->
-	$scope.awesomeThings = [
-		'HTML5 Boilerplate',
-		'AngularJS',
-		'Karma'
-	]
-)
+
+angular.module('imgoblin').controller 'MainCtrl', ($scope, $http) ->
+	$scope.lastUploadCid = ''
+	$scope.lastUploadName = 'cool'
+	window.supesHacky = $scope
+
+	$scope.submitLastUploadName = ->
+		console.log 'a', $scope.lastUploadName
+		cid = $scope.lastUploadCid
+		name = $scope.lastUploadName
+		url = serverUrl + "/upload/#{cid}"
+		data = {name}
+		console.log url, data
+		$http.put(url, data)
+			.success (r) ->
+				console.log ":)", r
+			.error (r) ->
+				console.log ":(", r
+
+
+angular.module('imgoblin').controller 'ImageGalleryController', ($scope, $http) ->
+	$http.get(serverUrl + "/images.json")
+		.success (images) ->
+			$scope.images = images
+		.error (r) ->
+			console.log ':(', r
+
+
+
 
 # http://html5demos.com/dnd-upload
 #
 class FileDragUI
-	constructor: (@container, @uploadUrl) ->
+	constructor: (@container, @serverUrl) ->
 		
 		# Events
 		@container.ondragenter = @onDragEnter
@@ -55,12 +78,16 @@ class FileDragUI
 			@previewFile(file)
 		formData.append('smap', 'hat')
 
-		url = @uploadUrl + "/" + generateCid()
+		cid = generateCid()
+		url = @serverUrl + "/upload/" + cid
 		xhr = new XMLHttpRequest
 		xhr.open("PUT", url)
 		xhr.onload = => @showProgress(1)
 		xhr.upload.onprogress = @onProgress
 		xhr.send(formData)
+
+		supesHacky.$apply ->
+			supesHacky.lastUploadCid = cid
 
 	onProgress: (e) =>
 		return unless e.lengthComputable
@@ -75,6 +102,5 @@ generateCid = ->
 	"cid" + (Math.random() * 12354389 | 0)
 
 container = document.querySelector('.drop-container')
-url = "http://localhost:4000/upload"
-new FileDragUI(container, url)
+new FileDragUI(container, serverUrl)
 		

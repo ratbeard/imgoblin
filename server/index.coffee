@@ -10,6 +10,7 @@ app = express()
 app.use(express.logger('dev'))
 app.use(cors())
 app.use(express.bodyParser({}))
+app.use(express.static(path.join(__dirname, 'public')))
 
 
 uniqueId = () ->
@@ -65,33 +66,52 @@ class UploadedImagePersistance
 # Routes
 #
 app.get '/', (request, response) ->
-	response.send 'sup'
+	rootUrl = "http://#{request.headers.host}"
+	response.send rootUrl
 
 app.put '/upload/:cid', (request, response) ->
 	{cid} = request.params
+	{name} = request.body
 
 	UploadedImagePersistance.findOrCreateByCid cid, (err, uploadedImage) ->
-		# TODO handle multiple files
-		uploadedFile = request.files.image
+		if name
+			console.log "UPDATING NAME", name
+			uploadedImage.name = name
+			UploadedImagePersistance.save(uploadedImage)
 
+		# TODO handle multiple files
+		uploadedFile = request.files?.image
 		if uploadedFile
 			console.log 'got file!'
-			#console.log uploadedFile
+			console.log uploadedFile
+			fileExtension = {
+				'image/png': '.png'
+				'image/jpeg': '.jpeg'
+				'image/gif': '.gif'
+			}[uploadedFile.headers['content-type']]
+
 			# TODO check not overwriting a file
 			# TODO check is actually an image file
-			isValidImageFile = true
-			isNewRecord = true
+			isValidImageFile = fileExtension?
+			isNewRecord = !uploadedImage.url?
 			if isValidImageFile && isNewRecord
 				oldPath = uploadedFile.path
-				newPath = path.join(__dirname, "../app/images/uploads", uploadedImage.id)
+				fileName = uploadedImage.id + fileExtension
+				newPath = path.join(__dirname, "public", fileName)
 				console.log 'renaming file %s -> %s', oldPath, newPath
 				fs.rename(oldPath, newPath)
-				uploadedImage.path = newPath
+				url = "http://#{request.headers.host}/#{fileName}"
+				uploadedImage.url = url
 				UploadedImagePersistance.save(uploadedImage)
 				
 
 		response.send JSON.stringify(uploadedImage)
 	
+
+app.get '/images.json', (request, response) ->
+
+	UploadedImagePersistance.loadImages (err, images) ->
+		response.send(JSON.stringify(images))
 
 #
 # Run

@@ -1,0 +1,9 @@
+DEM PICS!
+<a href="#/">RETURN TO HOMEPAGE</a>
+
+<ul>
+	<li ng-repeat="image in images">
+		<p>{{image.name || "no name"}}:</p>
+		<img ng-src="{{image.url}}" />
+	</li>
+</ul>

@@ -7,12 +7,15 @@
 	<div class="main-pic one"></div>
 	<div class="main-pic two"></div>
 	<div class="main-pic three"></div>
-	<p>Dem pics</p>
+	<p><a href="#/dempics">Dem pics</a></p>
 </div>
 
 <div class="feed-instructions">
 	<img src="images/pic.png" />
 	<p>Feed the goblin</p>
+	<input id="last-upload-cid" ng-model="lastUploadCid" >
+	<input id="last-upload-name" ng-model="lastUploadName" >
+	<button ng-click="submitLastUploadName()">Set last uploads name</button>
 </div>
 
 <div class="holder" style="border:1px dotted green">
