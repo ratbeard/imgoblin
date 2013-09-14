@@ -46,10 +46,10 @@ module.exports = function (grunt) {
           livereload: LIVERELOAD_PORT
         },
         files: [
-          '<%= yeoman.app %>/{,*/}*.html',
-          '.tmp/styles/{,*/}*.css',
-          '{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js',
-          '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+          //'<%= yeoman.app %>/{,*/}*.html',
+          //'.tmp/styles/{,*/}*.css',
+          //'{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js',
+          //'<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ]
       }
     },
@@ -325,9 +325,9 @@ module.exports = function (grunt) {
       'clean:server',
       'concurrent:server',
       'autoprefixer',
-      'connect:livereload',
+			'connect:livereload',
       //'open',
-      'watch'
+			'watch'
     ]);
   });
 

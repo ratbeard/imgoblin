@@ -5,7 +5,7 @@ else
 	
 
 
-angular.module('imgoblin').controller 'MainCtrl', ($scope, $http) ->
+angular.module('imgoblin').controller 'ainCtrl', ($scope, $http) ->
 	$scope.lastUploadCid = ''
 	$scope.lastUploadName = 'cool'
 	window.supesHacky = $scope
@@ -23,6 +23,16 @@ angular.module('imgoblin').controller 'MainCtrl', ($scope, $http) ->
 			.error (r) ->
 				console.log ":(", r
 
+	$scope.uploadFile = (file) ->
+		console.log 'updload!'
+
+angular.module('imgoblin').controller 'MainCtrl', 
+	class X
+		uploadFile: -> console.log 'a'
+
+
+
+
 
 angular.module('imgoblin').controller 'ImageGalleryController', ($scope, $http) ->
 	$http.get(serverUrl + "/images.json")
@@ -32,30 +42,58 @@ angular.module('imgoblin').controller 'ImageGalleryController', ($scope, $http) 
 			console.log ':(', r
 
 
+angular.module('imgoblin').directive 'x', [() ->
+	return {
+		link: (scope, element, attributes) ->
+			console.log 'directive', element
+	}
+]
+			
+angular.module('imgoblin').directive 'goblinDragContainer', [() ->
+	return {
+		link: (scope, element, attributes) ->
+			console.log 'goblinDragContainer', @
+
+			# TODO handle multiple enter events being fired
+			onDragEnter = (e) ->
+				console.log 'dragenter', e
+				element.addClass('dragging')
+
+			# Prevent default to allow upcoming drop event
+			onDragOver = (e) ->
+				e.preventDefault()
+
+			# Get single file and pass to controller
+			onDrop = (e) ->
+				e.preventDefault()
+				element.removeClass('dragging')
+				file = e.dataTransfer.files
+				scope.uploadFile(file)
+
+			element.addClass('goblin-drag-container')
+
+			# TODO - get latest jqlite to get `on()`?
+			element[0].ondragenter = onDragEnter
+			element[0].ondragover = onDragOver
+			element[0].ondrop  = onDrop
+
+	}
+]
+
+angular.module('imgoblin').directive 'goblinSays', [() ->
+	return {
+		link: (scope, element, attributes) ->
+
+	}
+]
+
+
+
 
 
 # http://html5demos.com/dnd-upload
 #
 class FileDragUI
-	constructor: (@container, @serverUrl) ->
-		
-		# Events
-		@container.ondragenter = @onDragEnter
-		@container.ondragover = @onDragOver
-		@container.ondrop = @onDrop
-
-	onDragEnter: (e) =>
-		@container.classList.add('dragging')
-
-	onDragOver: (e) =>
-		e.preventDefault()
-	
-	onDrop: (e) =>
-		e.preventDefault()
-		@container.classList.remove('dragging')
-
-		@readfiles(e.dataTransfer.files)
-
 	allowedFileType: (fileType) ->
 		/^image\/(png|jpeg|gif)$/.test(fileType)
 
@@ -106,5 +144,5 @@ generateCid = ->
 	"cid" + (Math.random() * 12354389 | 0)
 
 container = document.querySelector('.drop-container')
-new FileDragUI(container, serverUrl)
+#new FileDragUI(container, serverUrl)
 		

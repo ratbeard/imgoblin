@@ -62,10 +62,9 @@ body {
 	top: 400px;
 }
 
-
-.drop-container {
+.goblin-drag-container {
 	height: 100%;
 }
-.drop-container.dragging {
+.goblin-drag-container.dragging {
 	background: red;
 }
