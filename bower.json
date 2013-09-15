@@ -1,15 +1,16 @@
 {
-  "name": "tmp",
-  "version": "0.0.0",
+  "name": "imgoblin",
+  "version": "0.0.1",
   "dependencies": {
-    "angular": "~1.0.7",
-    "json3": "~3.2.4","es5-shim": "~2.0.8",
-    "angular-resource": "~1.0.7",
-    "angular-cookies": "~1.0.7",
-    "angular-sanitize": "~1.0.7"
+    "angular": "v1.2.0-rc.2",
+    "angular-animate": "v1.2.0-rc.2",
+    "angular-resource": "v1.2.0-rc.2",
+    "angular-cookies": "v1.2.0-rc.2",
+    "angular-sanitize": "v1.2.0-rc.2",
+		"angular-ui-router": "0.2.0"
   },
   "devDependencies": {
-    "angular-mocks": "~1.0.7",
-    "angular-scenario": "~1.0.7"
+    "angular-mocks": "v1.2.0-rc.2",
+    "angular-scenario": "v1.2.0-rc.2"
   }
 }

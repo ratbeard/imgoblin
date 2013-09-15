@@ -1,11 +1,32 @@
+<div ng-controller="MainCtrl as main">
 <div goblin-drag-container>
 
-	<img class="goblins-face" src="images/big-goblin.png" />
+	<div goblin class="goblin hide-initial-animations">
+		<img class="goblin__head" src="images/big-goblin.png" width=350 />
+
+		<div class="animate-show" ng-show="main.isUploadMessageVisible">
+			<div class="goblin__says">
+				<div class="goblin__says__image-praise">
+					Yum! I like dat&nbsp;
+					<img ng-src="{{main.preview}}" width="90" />
+					&nbsp;!
+				</div>
+				<div class="goblin__says__name-image">
+					<label>Whadoya call it?</label>
+					<input ng-model="main.uploadsName" placeholder="e.g. pema's rattail" />
+					<button ng-click="main.saveUploadsName()" ng-disabled="!main.uploadsName.length">Set name</button>
+					<div class="goblin__says__skip-name">
+						or 
+						<a href="#">skip da name</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
 
 	<div goblin-says>
 	</div>
-
-
 
 	<!--<div class="main-pic-container">-->
 		<!--<div class="main-pic one"></div>-->
@@ -22,7 +43,9 @@
 		<!--<button ng-click="submitLastUploadName()">Set last uploads name</button>-->
 	<!--</div>-->
 
-	<div class="holder" style="border:1px dotted green">
-	</div>
+	<!--<div class="holder" style="border:1px dotted green">-->
+	<!--</div>-->
 
 </div>
+</div>
+

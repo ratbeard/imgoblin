@@ -1,40 +1,59 @@
+# http://html5demos.com/dnd-upload
+
 if /imgoblin/.test(window.location)
 	serverUrl = "http://imgoblin-api.mikefrawley.com"
 else
 	serverUrl = "http://localhost:9119"
 	
+app = angular.module('imgoblin')
+
+app.controller 'MainCtrl',
+	class MainCtrl
+		allowedFileTypeRegex: /^image\/(png|jpeg|gif)$/i
+
+		# State
+		isUploadMessageVisible: false
+		uploadsName: null
+		
+		@$inject: ['$http', '$scope', '$timeout', 'ImagePersistance']
+		constructor: (@$http, @$scope, $timeout, @imagePersistance) ->
+			window.c = @
+			#$timeout =>
+				#@isUploadMessageVisible = true
+			#, 2000
+
+		onFileDrop: (file) ->
+			if !@allowedFileTypeRegex.test(file.type)
+				throw "Bad FileType: #{file.type}"
+
+			# Render preview thumbnail and show speech bubble
+			reader = new window.FileReader
+			reader.onload = (e) =>
+				@$scope.$apply =>
+					@isUploadMessageVisible = true
+					@preview = e.target.result
+			reader.readAsDataURL(file)
+
+			# Upload image
+			onSuccess = -> console.log ':)'
+			onError = -> console.log ':('
+			@imagePersistance.uploadImage(file)
+				.success(onSuccess)
+				.error(onError)
+
+		saveUploadsName: ->
+			onSuccess = -> console.log ':)'
+			onError = -> console.log ':('
+			@imagePersistance.saveNameForLastUpload(@uploadsName)
+				.success(onSuccess)
+				.error(onError)
 
 
-angular.module('imgoblin').controller 'ainCtrl', ($scope, $http) ->
-	$scope.lastUploadCid = ''
-	$scope.lastUploadName = 'cool'
-	window.supesHacky = $scope
-
-	$scope.submitLastUploadName = ->
-		console.log 'a', $scope.lastUploadName
-		cid = $scope.lastUploadCid
-		name = $scope.lastUploadName
-		url = serverUrl + "/upload/#{cid}"
-		data = {name}
-		console.log url, data
-		$http.put(url, data)
-			.success (r) ->
-				console.log ":)", r
-			.error (r) ->
-				console.log ":(", r
-
-	$scope.uploadFile = (file) ->
-		console.log 'updload!'
-
-angular.module('imgoblin').controller 'MainCtrl', 
-	class X
-		uploadFile: -> console.log 'a'
 
 
 
 
-
-angular.module('imgoblin').controller 'ImageGalleryController', ($scope, $http) ->
+app.controller 'ImageGalleryController', ($scope, $http) ->
 	$http.get(serverUrl + "/images.json")
 		.success (images) ->
 			$scope.images = images
@@ -45,13 +64,26 @@ angular.module('imgoblin').controller 'ImageGalleryController', ($scope, $http) 
 angular.module('imgoblin').directive 'x', [() ->
 	return {
 		link: (scope, element, attributes) ->
-			console.log 'directive', element
 	}
 ]
+
+angular.module('imgoblin').directive 'goblin', ['$timeout', ($timeout) ->
+	return {
+		#restrict: 'E'
+		link: (scope, element, attributes) ->
+			# HACK - remove class that hides initial show/hide animation
+			$timeout ->
+				element.removeClass('hide-initial-animations')
+			
+	}
+]
+
 			
 angular.module('imgoblin').directive 'goblinDragContainer', [() ->
 	return {
 		link: (scope, element, attributes) ->
+			window.s = scope
+			controller = scope.main
 			console.log 'goblinDragContainer', @
 
 			# TODO handle multiple enter events being fired
@@ -67,8 +99,9 @@ angular.module('imgoblin').directive 'goblinDragContainer', [() ->
 			onDrop = (e) ->
 				e.preventDefault()
 				element.removeClass('dragging')
-				file = e.dataTransfer.files
-				scope.uploadFile(file)
+				file = e.dataTransfer.files[0]
+				scope.$apply ->
+					controller.onFileDrop(file)
 
 			element.addClass('goblin-drag-container')
 
@@ -80,69 +113,43 @@ angular.module('imgoblin').directive 'goblinDragContainer', [() ->
 	}
 ]
 
-angular.module('imgoblin').directive 'goblinSays', [() ->
+app.service 'ImagePersistance', ["$http", ($http) ->
 	return {
-		link: (scope, element, attributes) ->
+		lastUploadId: null
 
+		generateUploadId: ->
+			Math.random() * 1000000 | 0
+
+		uploadImage: (file) ->
+			id = @lastUploadId = @generateUploadId()
+			url = "#{serverUrl}/upload/#{id}"
+			console.log 'saveImage', url
+
+			formData = new window.FormData()
+			formData.append('image', file)
+			$http.put(url, formData)
+
+		saveNameForLastUpload: (name) ->
+			id = @lastUploadId
+			url = "#{serverUrl}/upload/#{id}"
+			console.log 'saveName', url, name
+			$http.put(url, {name})
 	}
 ]
 
 
+# Old manual xhr code, prob needed to show progress
+#xhr = new XMLHttpRequest
+#xhr.open("PUT", url)
+#xhr.onload = => @showProgress(1)
+#xhr.upload.onprogress = @onProgress
+#xhr.send(formData)
 
+#onProgress: (e) =>
+	#return unless e.lengthComputable
+	#@showProgress(e.loaded / e.total)
 
+#showProgress: (fractionComplete) ->
+	#x = fractionComplete * 100 | 0
+	#console.log x
 
-# http://html5demos.com/dnd-upload
-#
-class FileDragUI
-	allowedFileType: (fileType) ->
-		/^image\/(png|jpeg|gif)$/.test(fileType)
-
-	previewFile: (file) ->
-		if !@allowedFileType(file.type)
-			console.error 'bad file type'
-			return
-
-		@previewContainer = document.querySelector(".holder")
-		container = @previewContainer
-		reader = new FileReader
-		reader.onload = (e) =>
-			image = new Image
-			image.src = e.target.result
-			image.width = 200
-			container.appendChild(image)
-		reader.readAsDataURL(file)
-
-	readfiles: (files) ->
-		formData = new window.FormData()
-		for file in files
-			console.log file
-			formData.append('image', file)
-			@previewFile(file)
-		formData.append('smap', 'hat')
-
-		cid = generateCid()
-		url = @serverUrl + "/upload/" + cid
-		xhr = new XMLHttpRequest
-		xhr.open("PUT", url)
-		xhr.onload = => @showProgress(1)
-		xhr.upload.onprogress = @onProgress
-		xhr.send(formData)
-
-		supesHacky.$apply ->
-			supesHacky.lastUploadCid = cid
-
-	onProgress: (e) =>
-		return unless e.lengthComputable
-		@showProgress(e.loaded / e.total)
-
-	showProgress: (fractionComplete) ->
-		x = fractionComplete * 100 | 0
-		console.log x
-		
-
-generateCid = ->
-	"cid" + (Math.random() * 12354389 | 0)
-
-container = document.querySelector('.drop-container')
-#new FileDragUI(container, serverUrl)
-		

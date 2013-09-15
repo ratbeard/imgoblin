@@ -13,8 +13,9 @@
 		<!-- endbuild -->
 </head>
   <body ng-app="imgoblin">
-    <!-- Add your site or application content here -->
-    <div id="container" class="drop-container" ng-view=""></div>
+
+		<div id="container" ui-view>
+		</div>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
      <script>
@@ -22,16 +23,15 @@
        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
        ga('create', 'UA-XXXXX-X');
        ga('send', 'pageview');
     </script>
 
 		<!-- build:js scripts/modules.js -->
 		<script src="bower_components/angular/angular.js"></script>
+		<script src="bower_components/angular-animate/angular-animate.js"></script>
 		<script src="bower_components/angular-resource/angular-resource.js"></script>
-		<script src="bower_components/angular-cookies/angular-cookies.js"></script>
-		<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+		<script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
 		<!-- endbuild -->
 
 		<!-- build:js({.tmp,app}) scripts/scripts.js -->
