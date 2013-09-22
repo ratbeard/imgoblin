@@ -136,6 +136,64 @@ ul, ol {
 /*
  * Image Gallery
  */
+.gallery {
+	border: 1px solid #ccc;
+	position: fixed;
+	left: 0;
+	top: 5%;
+	width: 90%;
+	height: 90%;
+	border-top-right-radius: 12px;
+	border-bottom-right-radius: 12px;
+	box-shadow: 5px 5px 5px rgba(50, 50, 50, 0.5);
+	background: linear-gradient(#fff, #ededed);
+	z-index: 2;
+}
+
+.gallery__search {
+	background: transparent linear-gradient( rgba(240, 240, 240, .7), rgba(240, 240, 240, 0));
+	height: 10%;
+	display: box;
+	justify-content: center;
+	align-items: center;
+}
+.gallery__search input {
+	font-size: 2em;
+}
+
+.gallery__images-wrap {
+	overflow-y: scroll;
+	position: absolute;
+	top: 10%;
+	width: 100%;
+	height: 90%;
+}
+.gallery__images {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-around;
+}
+
+.gallery__image {
+	display: flex;
+	flex-flow: column;
+	width: 200px;
+	padding: 10px;
+	margin-bottom: 1.5em;
+	text-align: center;
+	border: 1px solid rgba(0, 0, 0, .2);
+	border-radius: 4px;
+	box-shadow: 3px 3px 3px rgba(50, 50, 50, 0.2);
+}
+.gallery__image img {
+	max-width: 100%;
+	max-height: 150px;
+}
+.gallery__image-name {
+	margin-top: auto;
+}
+
+
 .close {
 	display: block;
 	position: absolute;
@@ -152,55 +210,6 @@ ul, ol {
 	font-size: 24px;
 	box-shadow: 1px 1px 3px rgba(50, 50, 50, 0.5);
 }
-.image-gallery-container {
-	border: 1px solid black;
-	position: fixed;
-	left: 0;
-	top: 5%;
-	width: 90%;
-	height: 90%;
-	border-top-right-radius: 12px;
-	border-bottom-right-radius: 12px;
-	box-shadow: 5px 5px 5px rgba(50, 50, 50, 0.5);
-	background: linear-gradient(#fff, #ededed);
-	z-index: 2;
-}
-.gallery-search {
-	/*border-bottom: 1px solid gray;*/
-}
-.gallery-search__input {
-	display: block;
-	margin: 30px auto;
-	font-size: 2em;
-}
-
-
-.image-gallery__images {
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: space-around;
-}
-.image-gallery__image {
-	display: flex;
-	flex-flow: column;
-	width: 200px;
-	padding: 10px;
-	margin-bottom: 1.5em;
-	text-align: center;
-	border: 1px solid rgba(0, 0, 0, .2);
-	border-radius: 4px;
-	box-shadow: 3px 3px 3px rgba(50, 50, 50, 0.2);
-}
-.image-gallery__image img {
-	max-width: 100%;
-	max-height: 150px;
-}
-
-.image-gallery__image-name {
-	margin-top: auto;
-	/*margin-bottom: 10px;*/
-}
-
 
 
 

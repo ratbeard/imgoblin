@@ -61,8 +61,9 @@ app.service 'GalleryPopupAPI', ['$timeout', ($timeout) ->
 	}
 ]
 
-app.directive 'imageGalleryPopup', ['GalleryPopupAPI', (GalleryPopupAPI) ->
+app.directive 'galleryPopup', ['GalleryPopupAPI', (GalleryPopupAPI) ->
 	return {
+		restrict: 'E'
 		controller: ($scope, ImagePersistance, GalleryPopupAPI) ->
 			$scope.api = GalleryPopupAPI
 

@@ -1,28 +1,21 @@
-<!--<div ng-include="'views/image-gallery.html'">-->
+<!--<div ng-include="'views/gallery.html'">-->
 <!--</div>-->
 
 	
-<div image-gallery-popup>
-	<section class="animate-slide image-gallery-container" ng-show="api.isVisible">
-		<a href="#/" class="close" ng-click="">&times;</a>
-		<div class="gallery-search">
-			<input 
-				class="gallery-search__input" 
-				ng-model="query"
-				ng-focus="api.isVisible"
-				placeholder="Filter by name"
-			/>
-		</div>
+<gallery-popup class="gallery animate-slide" ng-show="api.isVisible" >
+	<a href="#/" class="close" ng-click="">&times;</a>
 
-		<ul class="image-gallery__images">
-			<li 
-				class="image-gallery__image" 
-				ng-repeat="image in filteredImages = (images | filter:query)"
-			>
+	<div class="gallery__search">
+		<input ng-model="query" ng-focus="api.isVisible" placeholder="Filter by name" />
+	</div>
+
+	<div class="gallery__images-wrap">
+		<ul class="gallery__images">
+			<li class="gallery__image" ng-repeat="image in filteredImages = (images | filter:query)">
 				<div class="pic-wrapper">
 					<img ng-src="{{image.url}}" />
 				</div>
-				<div class="image-gallery__image-name">
+				<div class="gallery__image-name">
 					{{image.name || "no name"}}
 				</div>
 			</li>
@@ -31,9 +24,9 @@
 				No results matching "{{query}}", dum dum.
 			</div>
 		</ul>
+	</div>
 
-	</section>
-</div>
+</gallery-popup>
 
 
 
