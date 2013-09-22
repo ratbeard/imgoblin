@@ -3,6 +3,8 @@ cors = require 'cors'
 fs = require 'fs'
 path = require 'path'
 
+PORT = 7777
+
 # 
 # Middleware
 #
@@ -111,12 +113,11 @@ app.put '/upload/:cid', (request, response) ->
 	
 
 app.get '/images.json', (request, response) ->
-
 	UploadedImagePersistance.loadImages (err, images) ->
 		response.send(JSON.stringify(images))
 
 #
 # Run
 #
-app.listen(9119)
+app.listen(PORT)
 module.exports = app

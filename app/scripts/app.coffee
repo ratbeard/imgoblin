@@ -5,16 +5,25 @@ app = angular.module("imgoblin", [
 
 app.config(($stateProvider, $urlRouterProvider) ->
 	$stateProvider
-		.state("main",
-			url: "/main"
+		.state(
+			name: "main"
+			url: "/o_0"
 			templateUrl: "views/main.html"
 		)
-		.state("gallery",
-			url: "/gallery"
-			templateUrl: "views/image-gallery.html"
+		.state(
+			name: "main.image-gallery",
+			url: "^/dempics"
+			#controller: 'ImageGalleryController'
+			onEnter: ['GalleryPopupAPI', (GalleryPopupAPI) ->
+				console.log 'GALLERY'
+				GalleryPopupAPI.show()
+			]
+			onExit: ['GalleryPopupAPI', (GalleryPopupAPI) ->
+				GalleryPopupAPI.hide()
+			]
 		)
 
 	# Default route
-	$urlRouterProvider.otherwise("/main")
+	$urlRouterProvider.otherwise("/o_0")
 )
 	

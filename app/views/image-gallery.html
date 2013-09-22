@@ -1,9 +1,12 @@
-DEM PICS!
-<a href="#/">RETURN TO HOMEPAGE</a>
+<section class="image-gallery-container">
+	DEM PICS!
+	<a href="#/">RETURN TO HOMEPAGE</a>
 
-<ul>
-	<li ng-repeat="image in images">
-		<p>{{image.name || "no name"}}:</p>
-		<img ng-src="{{image.url}}" />
-	</li>
-</ul>
+	<ul>
+		<li ng-repeat="image in images">
+			<p>{{image.name || "no name"}}:</p>
+			<img ng-src="{{image.url}}" />
+		</li>
+	</ul>
+</section>
+

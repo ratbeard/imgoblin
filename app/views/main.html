@@ -1,7 +1,32 @@
+<!--<div ng-include="'views/image-gallery.html'">-->
+<!--</div>-->
+
+	
+<div image-gallery-popup>
+	<section class="animate-slide image-gallery-container" ng-show="api.isVisible">
+		<a href="#/" class="close" ng-click="api.isVisible=false">&times;</a>
+		<div class="gallery-search">
+			<input class="gallery-search__input" ng-model="search" placeholder="Filter by name" />
+		</div>
+
+
+		<ul class="image-gallery__images">
+			<li class="image-gallery__image" ng-repeat="image in images">
+				<div class="pic-wrapper">
+					<img ng-src="{{image.url}}" />
+				</div>
+				<div class="image-gallery__image-name">{{image.name || "no name"}}</div>
+			</li>
+		</ul>
+	</section>
+</div>
+
+
+
 <div ng-controller="MainCtrl as main">
 <div goblin-drag-container>
 
-	<div goblin class="goblin hide-initial-animations">
+	<div goblin class="goblin ">
 		<img class="goblin__head" src="images/big-goblin.png" width=350 />
 
 		<div class="animate-show" ng-show="main.isUploadMessageVisible">
@@ -28,12 +53,12 @@
 	<div goblin-says>
 	</div>
 
-	<!--<div class="main-pic-container">-->
-		<!--<div class="main-pic one"></div>-->
-		<!--<div class="main-pic two"></div>-->
-		<!--<div class="main-pic three"></div>-->
-		<!--<p><a href="#/dempics">Dem pics</a></p>-->
-	<!--</div>-->
+	<div class="main-pic-container">
+		<div class="main-pic one"></div>
+		<div class="main-pic two"></div>
+		<div class="main-pic three"></div>
+		<p><a href="#/dempics">Dem pics</a></p>
+	</div>
 
 	<!--<div class="feed-instructions">-->
 		<!--<img src="images/pic.png" />-->

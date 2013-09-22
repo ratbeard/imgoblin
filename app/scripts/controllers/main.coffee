@@ -3,7 +3,7 @@
 if /imgoblin/.test(window.location)
 	serverUrl = "http://imgoblin-api.mikefrawley.com"
 else
-	serverUrl = "http://localhost:9119"
+	serverUrl = "http://localhost:7777"
 	
 app = angular.module('imgoblin')
 
@@ -49,37 +49,59 @@ app.controller 'MainCtrl',
 				.error(onError)
 
 
+app.controller 'ImageGalleryController',
+	class ImageGalleryController
+		@$inject = ['$scope', '$http', 'GalleryPopup']
+		constructor: (@$scope, @$http, @galleryPopup) ->
 
 
 
-
-app.controller 'ImageGalleryController', ($scope, $http) ->
-	$http.get(serverUrl + "/images.json")
-		.success (images) ->
-			$scope.images = images
-		.error (r) ->
-			console.log ':(', r
-
-
-angular.module('imgoblin').directive 'x', [() ->
-	return {
-		link: (scope, element, attributes) ->
+app.service 'GalleryPopupAPI', ['$timeout', ($timeout) ->
+	return window.z = {
+		isVisible: false
+		hide: ->
+			$timeout =>
+				console.log 'hide'
+				@isVisible = false
+		show: ->
+			$timeout =>
+				console.log 'show'
+				@isVisible = true
 	}
 ]
 
-angular.module('imgoblin').directive 'goblin', ['$timeout', ($timeout) ->
+app.directive 'imageGalleryPopup', ['GalleryPopupAPI', (GalleryPopupAPI) ->
+	return {
+		controller: ($scope, ImagePersistance, GalleryPopupAPI) ->
+			$scope.api = GalleryPopupAPI
+			$scope.$watch "api.isVisible", (isVisible) ->
+				console.log ":D", isVisible
+
+			ImagePersistance.getImages()
+				.success (images) ->
+					$scope.images = images
+				.error (r) ->
+					console.log ':(', r
+
+		#link: (scope, element, attributes) ->
+			#scope.GalleryPopupAPI.
+	}
+
+]
+
+app.directive 'goblin', ['$timeout', ($timeout) ->
 	return {
 		#restrict: 'E'
 		link: (scope, element, attributes) ->
 			# HACK - remove class that hides initial show/hide animation
 			$timeout ->
-				element.removeClass('hide-initial-animations')
+				document.body.className = ''
 			
 	}
 ]
 
 			
-angular.module('imgoblin').directive 'goblinDragContainer', [() ->
+app.directive 'goblinDragContainer', [() ->
 	return {
 		link: (scope, element, attributes) ->
 			window.s = scope
@@ -134,6 +156,9 @@ app.service 'ImagePersistance', ["$http", ($http) ->
 			url = "#{serverUrl}/upload/#{id}"
 			console.log 'saveName', url, name
 			$http.put(url, {name})
+
+		getImages: () ->
+			$http.get(serverUrl + "/images.json")
 	}
 ]
 
