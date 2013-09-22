@@ -3,11 +3,11 @@ cors = require 'cors'
 fs = require 'fs'
 path = require 'path'
 
+#
+# Config
+#
 PORT = 7777
 
-# 
-# Middleware
-#
 app = express()
 app.use(express.logger('dev'))
 app.use(cors())
@@ -15,109 +15,143 @@ app.use(express.bodyParser({}))
 app.use(express.static(path.join(__dirname, 'public')))
 
 
-uniqueId = () ->
-	"id" + (Math.random() * 123427 | 0)
+# Model of an uploaded image.
+class Image
+	@create: (attributes) ->
+		new @(attributes)
 
-class UploadedImage
 	constructor: (attributes={}) ->
 		@[k] = v for k, v of attributes
 
-	@create: (attributes={}) ->
-		attributes.id = uniqueId()
-		new @(attributes)
 
-class UploadedImagePersistance
-	@findOrCreateByCid: (cid, callback) ->
-		@findByCid cid, (err, image) ->
-			console.log 'creating imageupload' unless image
-			image ?= UploadedImage.create(cid: cid)
+# Storage layer for an uploaded image.
+# Its a json file thats stored on disk.  Since there won't be many uploads,
+# should be fine for now :)
+class ImagePersistance
+	@findOrCreateById: (id, callback) ->
+		@findById id, (err, image) ->
+			image ?= Image.create(id: id)
 			callback(err, image)
 
-	@findByCid: (cid, callback) ->
+	@findById: (id, callback) ->
 		@loadImages (err, images) ->
-			console.log 'IMAGES: ', images
+			callback(err, null) if err
 			for image in images
-				if image.cid == cid
-					callback(err, new UploadedImage(image))
-					return
-			console.log 'no dice :('
-			callback(err, null)
+				if image.id == id
+					return callback(null, new Image(image))
+			callback(null, null)
 
 	@loadImages: (callback) ->
 		fs.readFile './db.json', 'utf8', (err, text) ->
-			if err?.code == 'ENOENT'
-				return callback(null, [])
-			throw err if err
-			data = JSON.parse(text)
-			callback(err, data)
+			if err
+				# OK if file doesn't exist - it'll be created on the first upload
+				return callback(null, []) if err.code == 'ENOENT'
+				return callback(err, null)
+			callback(null, JSON.parse(text))
 
-	@save: (uploadedImage) ->
+	# Create or update an image.
+	# If updating an existing image, override it with the given image.
+	# If creating an image, add it to the array of images.
+	# Then save and overwrite the db.json file
+	@save: (imageToSave) ->
 		@loadImages (err, images) ->
 			found = false
 			for image, i in images
-				if image.id == uploadedImage.id
-					images[i] = uploadedImage
+				if image.id == imageToSave.id
+					images[i] = imageToSave
 					found = true
+					break
+
 			if !found
-				images.push(uploadedImage)
-			
+				images.push(imageToSave)
+
 			fs.writeFile("./db.json", JSON.stringify(images, '', '\t'))
 
-
+#
+# Helpers
+#
+sendError = (response, message) ->
+	response.statusCode = 400
+	response.send(JSON.stringify(error: message))
 
 
 #
 # Routes
 #
+
+# GET /
+# Test route, not used.
 app.get '/', (request, response) ->
 	rootUrl = "http://#{request.headers.host}"
-	response.send rootUrl
+	response.send(rootUrl)
 
-app.put '/upload/:cid', (request, response) ->
-	{cid} = request.params
+
+# PUT /upload/178346
+# Handle an image upload or setting the images name.
+app.put '/upload/:id', (request, response) ->
+	{id} = request.params
 	{name} = request.body
+	uploadedFile = request.files?.image
 
-	UploadedImagePersistance.findOrCreateByCid cid, (err, uploadedImage) ->
+	if !name? && !uploadedFile?
+		return sendError(response, "Must send a name or image upload")
+
+	if name? && uploadFile?
+		return sendError(response, "Cant send name and image upload")
+
+	ImagePersistance.findOrCreateById id, (err, image) ->
+		if err
+			console.log "ERROR!", err
+			return sendError("¯\_(⊙︿⊙)_/¯")
+
+		if !image && name?
+			return sendError("Could not find image")
+
+		if image.url? && uploadedFile
+			return sendError("Cant modify an image file")
+		
 		if name
 			console.log "UPDATING NAME", name
-			uploadedImage.name = name
-			UploadedImagePersistance.save(uploadedImage)
+			image.name = name
+			ImagePersistance.save(image)
+			return response.send(JSON.stringify(image))
 
-		# TODO handle multiple files
-		uploadedFile = request.files?.image
 		if uploadedFile
+			# TODO handle multiple files
 			console.log 'got file!'
-			console.log uploadedFile
+			#console.log uploadedFile
+
+			# TODO check is actually an image file
+			contentType = uploadedFile.headers['content-type']
 			fileExtension = {
 				'image/png': '.png'
 				'image/jpeg': '.jpeg'
 				'image/gif': '.gif'
-			}[uploadedFile.headers['content-type']]
-
-			# TODO check not overwriting a file
-			# TODO check is actually an image file
-			isValidImageFile = fileExtension?
-			isNewRecord = !uploadedImage.url?
-			if isValidImageFile && isNewRecord
-				oldPath = uploadedFile.path
-				fileName = uploadedImage.id + fileExtension
-				newPath = path.join(__dirname, "public", fileName)
-				console.log 'renaming file %s -> %s', oldPath, newPath
-				fs.rename(oldPath, newPath)
-				url = "http://#{request.headers.host}/#{fileName}"
-				uploadedImage.url = url
-				UploadedImagePersistance.save(uploadedImage)
+			}[contentType]
+			if !fileExtension?
+				return sendError("Invalid image file")
+			
+			oldPath = uploadedFile.path
+			fileName = image.id + fileExtension
+			newPath = path.join(__dirname, "public", fileName)
+			console.log 'renaming file %s -> %s', oldPath, newPath
+			fs.rename(oldPath, newPath)
+			url = "http://#{request.headers.host}/#{fileName}"
+			image.url = url
+			ImagePersistance.save(image)
+			return response.send(JSON.stringify(image))
 				
-
-		response.send JSON.stringify(uploadedImage)
 	
-
+# GET /images.json
+# Returns a list of all the images in the "database" ;) ;)
 app.get '/images.json', (request, response) ->
-	UploadedImagePersistance.loadImages (err, images) ->
+	ImagePersistance.loadImages (err, images) ->
 		response.send(JSON.stringify(images))
+
 
 #
 # Run
 #
 app.listen(PORT)
 module.exports = app
+

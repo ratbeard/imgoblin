@@ -35,15 +35,13 @@ app.controller 'MainCtrl',
 			reader.readAsDataURL(file)
 
 			# Upload image
-			onSuccess = -> console.log ':)'
-			onError = -> console.log ':('
-			@imagePersistance.uploadImage(file)
-				.success(onSuccess)
-				.error(onError)
+			onSuccess = -> console.log ':) upload'
+			onError = -> console.log ':( upload'
+			@imagePersistance.uploadImage(file).then(onSuccess, onError)
 
 		saveUploadsName: ->
-			onSuccess = -> console.log ':)'
-			onError = -> console.log ':('
+			onSuccess = -> console.log ':) update'
+			onError = -> console.log ':( update'
 			@imagePersistance.saveNameForLastUpload(@uploadsName)
 				.success(onSuccess)
 				.error(onError)
@@ -126,24 +124,40 @@ app.directive 'goblinDragContainer', [() ->
 	}
 ]
 
-app.service 'ImagePersistance', ["$http", ($http) ->
+app.service 'ImagePersistance', ["$http", '$q', ($http, $q) ->
 	return {
 		lastUploadId: null
 
+		# The client generates the id for a new image
 		generateUploadId: ->
 			Math.random() * 1000000 | 0
 
+		# Upload the given image file to the server.  We generate a unique id
+		# and store it so the user can set the name in a subsequent ajax
+		# request.  Using angular's http service w/ FormData object looks too
+		# complicated, so we use the raw xhr object and return a promise.
 		uploadImage: (file) ->
 			id = @lastUploadId = @generateUploadId()
 			url = "#{serverUrl}/upload/#{id}"
-			console.log 'saveImage', url
-
 			formData = new window.FormData()
 			formData.append('image', file)
-			$http.put(url, formData)
+
+			# Dat ajax
+			deferred = $q.defer()
+			xhr = new XMLHttpRequest
+			xhr.open("PUT", url)
+			xhr.send(formData)
+			xhr.onreadystatechange = (e) ->
+				return unless xhr.readyState == 4
+				response = JSON.parse(xhr.responseText)
+				if xhr.statusText == "OK"
+					deferred.resolve(response)
+				else
+					deferred.reject(response)
+			deferred.promise
 
 		saveNameForLastUpload: (name) ->
-			saveNameForImage(@lastUploadId, name)
+			@saveNameForImage(@lastUploadId, name)
 
 		saveNameForImage: (imageId, name) ->
 			url = "#{serverUrl}/upload/#{imageId}"
