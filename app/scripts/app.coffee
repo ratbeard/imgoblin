@@ -27,3 +27,14 @@ app.config(($stateProvider, $urlRouterProvider) ->
 	$urlRouterProvider.otherwise("/o_0")
 )
 	
+
+
+# Not in angular yet, but probably soon
+# http://stackoverflow.com/questions/14859266/input-autofocus-attribute/14859639#14859639
+angular.module("ng").directive "ngFocus", ($timeout) ->
+	link: (scope, element, attrs) ->
+		scope.$watch(attrs.ngFocus, (val) ->
+			if angular.isDefined(val) && val
+				$timeout -> element[0].focus()
+		)
+

@@ -4,20 +4,34 @@
 	
 <div image-gallery-popup>
 	<section class="animate-slide image-gallery-container" ng-show="api.isVisible">
-		<a href="#/" class="close" ng-click="api.isVisible=false">&times;</a>
+		<a href="#/" class="close" ng-click="">&times;</a>
 		<div class="gallery-search">
-			<input class="gallery-search__input" ng-model="search" placeholder="Filter by name" />
+			<input 
+				class="gallery-search__input" 
+				ng-model="query"
+				ng-focus="api.isVisible"
+				placeholder="Filter by name"
+			/>
 		</div>
 
-
 		<ul class="image-gallery__images">
-			<li class="image-gallery__image" ng-repeat="image in images">
+			<li 
+				class="image-gallery__image" 
+				ng-repeat="image in filteredImages = (images | filter:query)"
+			>
 				<div class="pic-wrapper">
 					<img ng-src="{{image.url}}" />
 				</div>
-				<div class="image-gallery__image-name">{{image.name || "no name"}}</div>
+				<div class="image-gallery__image-name">
+					{{image.name || "no name"}}
+				</div>
 			</li>
+
+			<div ng-show="filteredImages.length == 0">
+				No results matching "{{query}}", dum dum.
+			</div>
 		</ul>
+
 	</section>
 </div>
 
