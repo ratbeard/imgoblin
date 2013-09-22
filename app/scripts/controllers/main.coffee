@@ -49,23 +49,16 @@ app.controller 'MainCtrl',
 				.error(onError)
 
 
-app.controller 'ImageGalleryController',
-	class ImageGalleryController
-		@$inject = ['$scope', '$http', 'GalleryPopup']
-		constructor: (@$scope, @$http, @galleryPopup) ->
-
-
-
+# Shared service to show/hide the image gallery popup.
+# Used by the routing layer, and the controller.
 app.service 'GalleryPopupAPI', ['$timeout', ($timeout) ->
-	return window.z = {
+	return {
 		isVisible: false
 		hide: ->
 			$timeout =>
-				console.log 'hide'
 				@isVisible = false
 		show: ->
 			$timeout =>
-				console.log 'show'
 				@isVisible = true
 	}
 ]
@@ -74,8 +67,6 @@ app.directive 'imageGalleryPopup', ['GalleryPopupAPI', (GalleryPopupAPI) ->
 	return {
 		controller: ($scope, ImagePersistance, GalleryPopupAPI) ->
 			$scope.api = GalleryPopupAPI
-			$scope.$watch "api.isVisible", (isVisible) ->
-				console.log ":D", isVisible
 
 			ImagePersistance.getImages()
 				.success (images) ->
@@ -152,13 +143,16 @@ app.service 'ImagePersistance', ["$http", ($http) ->
 			$http.put(url, formData)
 
 		saveNameForLastUpload: (name) ->
-			id = @lastUploadId
-			url = "#{serverUrl}/upload/#{id}"
+			saveNameForImage(@lastUploadId, name)
+
+		saveNameForImage: (imageId, name) ->
+			url = "#{serverUrl}/upload/#{imageId}"
 			console.log 'saveName', url, name
 			$http.put(url, {name})
 
 		getImages: () ->
-			$http.get(serverUrl + "/images.json")
+			url = "#{serverUrl}/images.json"
+			$http.get(url)
 	}
 ]
 
